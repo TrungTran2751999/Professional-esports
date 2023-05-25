@@ -13,7 +13,5 @@ import lombok.Setter;
 public class StudentResponseDTO {
     private Long id;
     private String name;
-    private String email;
-    private String code;
     private AvartarDTO avartarDTO;
 }

@@ -75,7 +75,7 @@ public class AuthAPI {
         User user = userService.getByUsername(userLoginDTO.getUsername());
         if(user==null) throw new DataInputException("Sai tài khoản hoặc mật khẩu");
         if(user.getDeleted()){
-            throw new UnauthorizedException("Tài khoản và mật khẩu chưa được xác thực");
+            throw new UnauthorizedException("Tài khoản của bạn chưa được xác thực hoặc đã bị khóa. Hãy liên hệ với admin");
         }
         try {
             Authentication authentication = authenticationManager.authenticate(
@@ -87,14 +87,6 @@ public class AuthAPI {
             UserDetails userDetails = (UserDetails) authentication.getPrincipal();
 
             User currentUser = userService.getByUsername(userLoginDTO.getUsername());
-
-//            if (currentUser.getIsFirstLogin()) {
-//                DataInputException dataInputException = new DataInputException("Email hoặc mật khẩu không đúng! Vui lòng kiểm tra lại!");
-//                return new ResponseEntity<>(dataInputException, HttpStatus.UNAUTHORIZED);
-//            }
-
-//            Optional<StaffDTO>  staffDTOOptional = staffService.getByUsernameDTO(currentUser.getUsername());
-//            StaffDTO staff = staffDTOOptional.get();
 
             JwtResponse jwtResponse = new JwtResponse(
                     jwt,
@@ -167,7 +159,7 @@ public class AuthAPI {
         return new ResponseEntity<>(mentorResult.setPassword(null), HttpStatus.CREATED);
     }
     @PostMapping("/register/organizer")
-    public ResponseEntity<?> registerOrganizer(@Validated OrganizerRequestDTO organizerDTO, BindingResult bindingResult) {
+    public ResponseEntity<?> registerOrganizer(@Validated @RequestBody OrganizerRequestDTO organizerDTO, BindingResult bindingResult) {
         if (bindingResult.hasFieldErrors()) {
             return appUtils.mapErrorToResponse(bindingResult);
         }

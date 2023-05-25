@@ -5,12 +5,17 @@ import com.cg.domain.esport.entities.Organizer;
 import com.cg.domain.esport.entities.User;
 import com.cg.exception.DataInputException;
 import com.cg.exception.UnauthorizedException;
+import com.cg.repository.esport.OrganizerFilterRepository;
 import com.cg.repository.esport.OrganizerRepository;
 import com.cg.service.esport.avartar.IAvartarService;
 import com.cg.service.esport.jwt.JwtService;
 import com.cg.service.esport.organizer.IOrganizerService;
 import com.cg.utils.AppUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
@@ -24,8 +29,10 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @RestController
@@ -37,16 +44,51 @@ public class OrganizerAPI {
     private IAvartarService avartarService;
     @Autowired
     private AppUtils appUtils;
-    @GetMapping
-    public ResponseEntity<?> getAll(){
-        List<OrganizerResponseDTO> organzier = organizerService.findAll()
-                                        .stream()
-                                        .map(organizer -> {
-                                            AvartarDTO avartarDTO = avartarService.findByOrganizer(organizer).toAvartarDTO();
-                                            return organizer.toOrganizerResponseDTO(avartarDTO);
-                                        })
-                                        .collect(Collectors.toList());
-        return new ResponseEntity<>(organzier, HttpStatus.OK);
+    @Autowired
+    private OrganizerFilterRepository organizerFilterRepository;
+
+    @PostMapping("/filter")
+    public ResponseEntity<?> filter(@Validated @RequestBody OrganizerFilter organizerFilter, BindingResult bindingResult,
+                                    @RequestParam(name = "sort", required = false, defaultValue = "ASC") String sort){
+        if(bindingResult.hasErrors()){
+            return appUtils.mapErrorToResponse(bindingResult);
+        }
+        int start = organizerFilter.getStart();
+        int length = organizerFilter.getLength();
+        int page = start / length + 1;
+        Sort sortable = null;
+        if (sort.equals("ASC")) {
+            sortable = Sort.by("id").ascending();
+        }
+        if (sort.equals("DESC")) {
+            sortable = Sort.by("id").descending();
+        }
+        Pageable pageable = PageRequest.of(page - 1, length, sortable);
+        Page<OrganizerResponseDTO> pageableCustomers = organizerService.filter(organizerFilter, pageable);
+        List<OrganizerResponseDTO> listOrganizer = pageableCustomers.getContent();
+        return new ResponseEntity<>(listOrganizer, HttpStatus.OK);
+    }
+    @PostMapping("/admin/filter")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
+    public ResponseEntity<?> filterByAdmin(@Validated @RequestBody OrganizerFilter organizerFilter, BindingResult bindingResult,
+                                    @RequestParam(name = "sort", required = false, defaultValue = "ASC") String sort){
+        if(bindingResult.hasErrors()){
+            return appUtils.mapErrorToResponse(bindingResult);
+        }
+        int start = organizerFilter.getStart();
+        int length = organizerFilter.getLength();
+        int page = start / length + 1;
+        Sort sortable = null;
+        if (sort.equals("ASC")) {
+            sortable = Sort.by("id").ascending();
+        }
+        if (sort.equals("DESC")) {
+            sortable = Sort.by("id").descending();
+        }
+        Pageable pageable = PageRequest.of(page - 1, length, sortable);
+        Page<OrganizerResSecurity> pageableCustomers = organizerService.filterByAdmin(organizerFilter, pageable);
+        List<OrganizerResSecurity> listOrganizer = pageableCustomers.getContent();
+        return new ResponseEntity<>(listOrganizer, HttpStatus.OK);
     }
     @GetMapping("/{id}")
     public ResponseEntity<?> getById(@PathVariable("id") Long id){
@@ -58,7 +100,7 @@ public class OrganizerAPI {
             throw new DataInputException("Không tìm thấy nhà tổ chức");
         }
     }
-    @PostMapping
+    @PostMapping("/update")
     @PreAuthorize("hasAnyAuthority('ROLE_ORGANIZER')")
     public ResponseEntity<?> updateOrganizer(@Validated @RequestBody OrganizerUpdateDTO organizerDTO, BindingResult bindingResult){
         if (bindingResult.hasFieldErrors()) {
@@ -76,20 +118,28 @@ public class OrganizerAPI {
             throw new DataInputException("Không tìm tìm thấy nhà tổ chức");
         }
     }
-    @PostMapping("/avartar")
+    @GetMapping("/admin/{id}")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
+    public ResponseEntity<?> getByIdByAdmin(@PathVariable("id") Long id){
+        return new ResponseEntity<>(organizerService.findByAdmin(id), HttpStatus.OK);
+    }
     @PreAuthorize("hasAnyAuthority('ROLE_ORGANIZER')")
-    public ResponseEntity<?> updateImage(@Validated OrganizerDTO organizerDTO, BindingResult bindingResult){
-        if (bindingResult.hasFieldErrors()) {
+    @PostMapping("/avartar")
+    public ResponseEntity<?> updateImage(@Validated OrganizerAvartarDTO organizerAvartarDTO, BindingResult bindingResult){
+        if(bindingResult.hasErrors()){
             return appUtils.mapErrorToResponse(bindingResult);
         }
-        return new ResponseEntity<>(organizerService.updateAvartar(organizerDTO), HttpStatus.OK);
+        String[] imageExtension = new String[]{"image/png", "image/jpg", "image/jpeg"};
+        for(int i=0; i<imageExtension.length; i++){
+            if(Objects.equals(organizerAvartarDTO.getAvartar().getContentType(), imageExtension[i])){
+                return new ResponseEntity<>(organizerService.updateAvartar(organizerAvartarDTO), HttpStatus.OK);
+            }else if(i == imageExtension.length-1){
+                throw new DataInputException("Ảnh đại diện không đúng định dạng");
+            }
+        }
+        return null;
     }
-    @GetMapping("/deleted")
-    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
-    public ResponseEntity<?> findByDeleted(@RequestParam("deleted") Boolean deleted){
-        return new ResponseEntity<>(organizerService.findByDeleted(deleted), HttpStatus.OK);
-    }
-    @PostMapping("/deleted")
+    @PostMapping("/admin")
     @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
     public ResponseEntity<?> setDeleted(@RequestParam("deleted") Boolean deleted, @RequestParam("id") Long id){
         organizerService.setDeleted(deleted, id);

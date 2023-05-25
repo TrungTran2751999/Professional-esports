@@ -12,8 +12,6 @@ import lombok.Setter;
 @AllArgsConstructor
 public class OrganizerResponseDTO {
     private Long id;
-    private String name;
-    private String email;
     private String nickName;
     private AvartarDTO avartarDTO;
 }

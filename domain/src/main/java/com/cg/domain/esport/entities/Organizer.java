@@ -1,7 +1,6 @@
 package com.cg.domain.esport.entities;
 
 import com.cg.domain.esport.dto.AvartarDTO;
-import com.cg.domain.esport.dto.OrganizerDTO;
 import com.cg.domain.esport.dto.OrganizerResSecurity;
 import com.cg.domain.esport.dto.OrganizerResponseDTO;
 import lombok.AllArgsConstructor;
@@ -35,12 +34,6 @@ public class Organizer extends BaseEntity {
     @JoinColumn(name = "user_id",nullable = false)
     private User user;
 
-
-    public OrganizerDTO toOrganizerDTO(){
-        return new OrganizerDTO()
-                .setId(id)
-                .setNickName(nickName);
-    }
     public OrganizerResponseDTO toOrganizerResponseDTO(AvartarDTO avartarDTO){
         return new OrganizerResponseDTO()
                 .setId(id)

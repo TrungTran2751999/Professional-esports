@@ -2,6 +2,7 @@ package com.cg.service.esport.avartar;
 
 import com.cg.domain.esport.entities.Avartar;
 import com.cg.domain.esport.entities.Organizer;
+import com.cg.domain.esport.entities.Student;
 import com.cg.service.IGeneralService;
 
 import java.util.List;
@@ -15,4 +16,5 @@ public interface IAvartarService {
     void remove(String id);
     void removeByOrganizer(Avartar avartar);
     Avartar findByOrganizer(Organizer organizer);
+    Avartar findByStudent(Student student);
 }

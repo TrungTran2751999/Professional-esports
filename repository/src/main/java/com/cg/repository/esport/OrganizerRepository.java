@@ -18,4 +18,6 @@ public interface OrganizerRepository extends JpaRepository<Organizer, Long> {
 
     List<Organizer> getByDeleted(Boolean deleted);
 
+
+
 }

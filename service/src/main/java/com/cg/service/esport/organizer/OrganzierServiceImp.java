@@ -4,6 +4,7 @@ import com.cg.domain.esport.dto.*;
 import com.cg.domain.esport.entities.*;
 import com.cg.exception.DataInputException;
 import com.cg.exception.UnauthorizedException;
+import com.cg.repository.esport.OrganizerFilterRepository;
 import com.cg.repository.esport.OrganizerRepository;
 import com.cg.repository.esport.OtpRepository;
 import com.cg.repository.esport.RoleRepository;
@@ -16,6 +17,8 @@ import com.cg.service.esport.user.IUserService;
 import com.cg.utils.AppUtils;
 import com.cg.utils.driver.GoogleDriveConfig;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -25,9 +28,11 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.Cookie;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -35,6 +40,8 @@ import java.util.stream.Collectors;
 public class OrganzierServiceImp implements IOrganizerService{
     @Autowired
     private OrganizerRepository organizerRepository;
+    @Autowired
+    private OrganizerFilterRepository organizerFilterRepository;
     @Autowired
     private RoleRepository roleRepository;
     @Autowired
@@ -79,6 +86,7 @@ public class OrganzierServiceImp implements IOrganizerService{
         organizerRepository.deleteById(id);
     }
 
+
     @Override
     @Transactional
     public OrganizerResponseDTO createOrganizer(OrganizerRequestDTO organizerDTO) {
@@ -103,60 +111,105 @@ public class OrganzierServiceImp implements IOrganizerService{
     }
     @Override
     @Transactional
-    public OrganizerResponseDTO updateAvartar(OrganizerDTO organizerDTO) {
-        User user = userService.findByCodeSecurity(organizerDTO.getCode());
-        if(user != null){
-            Organizer organizer = organizerRepository.getByUser(user);
-            Avartar avartar = avartarService.findByOrganizer(organizer);
-            String fileIdDelete = avartar.getFileUrl();
-            avartar.setFileUrl(appUtils.uploadAvartar(organizerDTO.getMultipartFile(),avartar.getId()));
-            if(fileIdDelete != null){
-                String fileId = fileIdDelete.split("&")[1].split("=")[1];
-                try {
-                    appUtils.deleteFile(fileId);
-                } catch (Exception e) {
-                    throw new DataInputException("FAIL");
+    public OrganizerResSecurity updateAvartar(OrganizerAvartarDTO organizerAvartarDTO) {
+        User user = userService.findByCodeSecurity(organizerAvartarDTO.getCode());
+        try{
+            if(Objects.equals(user.getId(), organizerAvartarDTO.getUserId())){
+                Organizer organizer = organizerRepository.getByUser(user);
+                Avartar avartar = avartarService.findByOrganizer(organizer);
+                String fileIdDelete = avartar.getFileUrl();
+                avartarService.save(avartar.setFileUrl(appUtils.uploadAvartar(organizerAvartarDTO.getAvartar(), avartar.getId())));
+                if(fileIdDelete != null){
+                    String fileId = fileIdDelete.split("&")[1].split("=")[1];
+                    try {
+                        appUtils.deleteFile(fileId);
+                    } catch (Exception e) {
+                        throw new DataInputException("FAIL");
+                    }
                 }
+                return organizer.toOrganizerResSecurity(avartar.toAvartarDTO());
+            }else{
+                throw new DataInputException("Nhà tổ chức không tồn tại");
             }
-            return organizer.toOrganizerResponseDTO(avartar.toAvartarDTO());
-        }else{
+        }catch (Exception e){
             throw new DataInputException("Nhà tổ chức không tồn tại");
         }
     }
 
     @Override
     @Transactional
-    public OrganizerResponseDTO updateOrganizerNoAvarTar(OrganizerUpdateDTO organizerDTO) {
+    public OrganizerResSecurity updateOrganizerNoAvarTar(OrganizerUpdateDTO organizerDTO) {
         List<Organizer> organizerCheckEmail = organizerRepository.findByEmail(organizerDTO.getEmail());
-        if(organizerCheckEmail.size() > 0){
+        if(organizerCheckEmail.size() > 1){
             throw new DataInputException("Email đã tồn tại");
         }
         User user = userService.findByCodeSecurity(organizerDTO.getCode());
-        if(user != null){
-            Organizer organizer = organizerRepository.getByUser(user);
-            organizer = organizerDTO.setId(organizer.getId()).toOrganizer().setUser(user);
-            organizer = organizerRepository.save(organizer);
-            Avartar avartar = avartarService.findByOrganizer(organizer);
-            return organizer.toOrganizerResponseDTO(avartar.toAvartarDTO());
-        }else{
+        try{
+            if(Objects.equals(user.getId(), organizerDTO.getUserId()) && user.getId()!=null && organizerDTO.getUserId()!=null){
+                Organizer organizer = organizerRepository.getByUser(user);
+                organizer = organizerDTO.toOrganizer().setUser(user).setId(organizer.getId());
+                organizer = organizerRepository.save(organizer);
+                Avartar avartar = avartarService.findByOrganizer(organizer);
+                return organizer.toOrganizerResSecurity(avartar.toAvartarDTO());
+            }else{
+                throw new DataInputException("Nhà tổ chức không tồn tại");
+            }
+        }catch (Exception e){
+            System.out.println(e);
             throw new DataInputException("Nhà tổ chức không tồn tại");
         }
     }
 
     @Override
     public OrganizerResponseDTO findByUserId(Long id) {
-        Organizer organizer = organizerRepository.getByUserId(id);
-        Avartar avartar = avartarService.findByOrganizer(organizer);
-        return organizer.toOrganizerResponseDTO(avartar.toAvartarDTO());
+        Optional<Organizer> organizerOpt = organizerRepository.findById(id);
+        if(organizerOpt.isPresent()){
+            Avartar avartar = avartarService.findByOrganizer(organizerOpt.get());
+            return organizerOpt.get().toOrganizerResponseDTO(avartar.toAvartarDTO());
+        }else{
+            throw new DataInputException("Nhà tổ chức không tồn tại");
+        }
+    }
+
+    @Override
+    public Page<OrganizerResponseDTO> filter(OrganizerFilter organizerFilter, Pageable pageable) {
+        return organizerFilterRepository.findAllByFilters(organizerFilter,pageable)
+                .map(organizer -> {
+                    Avartar avartar = avartarService.findByOrganizer(organizer);
+                    return organizer.toOrganizerResponseDTO(avartar.toAvartarDTO());
+                });
+    }
+
+    @Override
+    public Page<OrganizerResSecurity> filterByAdmin(OrganizerFilter organizerFilter, Pageable pageable) {
+        return organizerFilterRepository.findAllByFilters(organizerFilter,pageable)
+                .map(organizer -> {
+                    Avartar avartar = avartarService.findByOrganizer(organizer);
+                    return organizer.toOrganizerResSecurity(avartar.toAvartarDTO());
+                });
     }
 
     @Override
     public OrganizerResSecurity findByCodeSecurity(String code) {
         User user = userService.findByCodeSecurity(code);
-        if(user != null){
-            Organizer organizer = organizerRepository.getByUser(user);
-            Avartar avartar = avartarService.findByOrganizer(organizer);
-            return organizer.toOrganizerResSecurity(avartar.toAvartarDTO());
+        try{
+            if(user != null){
+                Organizer organizer = organizerRepository.getByUser(user);
+                Avartar avartar = avartarService.findByOrganizer(organizer);
+                return organizer.toOrganizerResSecurity(avartar.toAvartarDTO());
+            }else{
+                throw new DataInputException("Nhà tổ chức không tồn tại");
+            }
+        }catch (Exception e){
+            throw new DataInputException("Nhà tổ chức không tồn tại");
+        }
+    }
+    @Override
+    public OrganizerResSecurity findByAdmin(Long id) {
+        Optional<Organizer> organizerOpt = organizerRepository.findById(id);
+        if(organizerOpt.isPresent()){
+            Avartar avartar = avartarService.findByOrganizer(organizerOpt.get());
+            return organizerOpt.get().toOrganizerResSecurity(avartar.toAvartarDTO());
         }else{
             throw new DataInputException("Nhà tổ chức không tồn tại");
         }
@@ -193,6 +246,7 @@ public class OrganzierServiceImp implements IOrganizerService{
                     return organizer.toOrganizerResSecurity(avartar.toAvartarDTO());
                 }).collect(Collectors.toList());
     }
+
 
     @Override
     @Transactional

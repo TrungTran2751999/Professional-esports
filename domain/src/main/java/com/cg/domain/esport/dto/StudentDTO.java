@@ -21,7 +21,7 @@ import java.math.BigDecimal;
 public class StudentDTO {
     private Long id;
 
-    @NotBlank(message = "Tên không được để trống")
+    @NotBlank(message = "Tên đăng nhập không được để trống")
     @Pattern(regexp = "^[A-Za-z0-9]*$", message = "Tên đăng nhập không đúng định dạng")
     @Length(min = 5, max = 50, message = "Độ dài tên phải nhỏ hơn 50 và lớn hơn 5 kí tự")
     private String name;
@@ -34,16 +34,22 @@ public class StudentDTO {
     @Email(message = "Email không đúng định dạng")
     private String email;
 
+    @NotBlank(message = "Tên hiển thị không được để trống")
+    @Pattern(regexp = "^[A-Za-z]*$", message = "Tên đăng nhập không đúng định dạng")
+    @Length(min = 5, max = 50, message = "Độ dài tên phải nhỏ hơn 50 và lớn hơn 5 kí tự")
+    private String nickName;
+
     private BigDecimal balance;
-    @NotNull
-    private MultipartFile avartar;
+    @NotBlank(message = "SDT không được để trống")
+    @Pattern(regexp = "^0[0-9]{9}$", message = "SDT không đúng định dạng")
+    private String phoneNumber;
 
     public Student toStudent(){
         return new Student()
-                .setName(name)
                 .setId(id)
+                .setNickName(nickName)
                 .setEmail(email)
                 .setBalance(balance)
-                .setPassword(password);
+                .setPhoneNumber(phoneNumber);
     }
 }

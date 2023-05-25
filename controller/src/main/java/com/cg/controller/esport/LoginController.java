@@ -1,6 +1,7 @@
 package com.cg.controller.esport;
 
 import com.cg.domain.esport.dto.StudentDTO;
+import com.cg.domain.esport.dto.StudentResSecurity;
 import com.cg.domain.esport.dto.StudentResponseDTO;
 import com.cg.domain.esport.entities.JwtResponse;
 import com.cg.domain.esport.entities.Otp;
@@ -63,15 +64,14 @@ public class LoginController {
         String accessToken = googleUtils.getToken(code);
 
         GooglePojo googlePojo = googleUtils.getUserInfo(accessToken);
-//        UserDetails userDetail = googleUtils.buildUser(googlePojo);
-//        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetail, null,
-//                userDetail.getAuthorities());
-//        authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-//        SecurityContextHolder.getContext().setAuthentication(authentication);
         try{
             User currentUser = userService.getByUsername(googlePojo.getEmail());
+            StudentResSecurity studentDTO = new StudentResSecurity();
             if(currentUser == null){
-                StudentResponseDTO studentDTO = studentService.createStudentByGoogle(googlePojo);
+                studentDTO = studentService.createStudentByGoogle(googlePojo);
+                currentUser = userService.getByUsername(googlePojo.getEmail());
+            }else{
+                studentDTO = studentService.findByAdmin(currentUser);
             }
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(googlePojo.getEmail(), googlePojo.getId()));
@@ -79,9 +79,18 @@ public class LoginController {
 
             String jwt = jwtService.generateTokenLogin(authentication);
             UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-
+            JwtResponse jwtResponse = new JwtResponse(
+                    jwt,
+                    currentUser.getId(),
+                    currentUser.getUsername(),
+                    studentDTO.getNickName(),
+                    userDetails.getAuthorities(),
+                    currentUser.getCodeSecurity()
+                    );
             Cookie cookie = new Cookie("JWT", jwt);
+            Cookie infoUser = new Cookie("user", jwtResponse.toString());
             response.addCookie(cookie);
+            response.addCookie(infoUser);
             return "redirect:/logingoogle";
         }catch (Exception e){
             e.printStackTrace();

@@ -27,18 +27,16 @@ public class JwtResponse {
         this.name = name;
         this.roles = roles;
         this.code = code;
+
     }
 
     @Override
     public String toString() {
-        return "JwtResponse{" +
-                "id=" + id +
-                ", token='" + token + '\'' +
-                ", type='" + type + '\'' +
-                ", username='" + username + '\'' +
-                ", name='" + name + '\'' +
-                ", roles=" + roles +
-                '}';
+        return "{" + "'" +"id" + "'" + ":" + id +
+                "/"+ "'" + "username" +"'" +":" + "'"+ username + "'" +
+                "/" + "'" + "name" + "'" + ":"+ "'" + name + "'" +
+                "/" + "'" + "code" + "'" + ":"+ "'" + code + "'" +
+                "}" ;
     }
 }
 

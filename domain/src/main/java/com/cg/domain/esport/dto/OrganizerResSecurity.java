@@ -11,7 +11,6 @@ import lombok.Setter;
 @AllArgsConstructor
 public class OrganizerResSecurity {
     private Long id;
-    private String name;
     private String email;
     private String nickName;
     private String phoneNumber;
