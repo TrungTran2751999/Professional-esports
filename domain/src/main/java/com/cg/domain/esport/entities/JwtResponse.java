@@ -12,6 +12,7 @@ import java.util.Collection;
 @Setter
 @NoArgsConstructor
 public class JwtResponse {
+    private Long userId;
     private Long id;
     private String token;
     private String type = "Bearer";
@@ -20,22 +21,31 @@ public class JwtResponse {
     private String code;
     private Collection<? extends GrantedAuthority> roles;
 
-    public JwtResponse(String accessToken, Long id, String username, String name, Collection<? extends GrantedAuthority> roles, String code) {
+    public JwtResponse(String accessToken, Long userId, String username, String name, Collection<? extends GrantedAuthority> roles, String code) {
         this.token = accessToken;
-        this.id = id;
+        this.userId = userId;
         this.username = username;
         this.name = name;
         this.roles = roles;
         this.code = code;
-
+    }
+    public JwtResponse(String accessToken, Long userId, String username, String name, Collection<? extends GrantedAuthority> roles, String code, Long id) {
+        this.token = accessToken;
+        this.userId = userId;
+        this.username = username;
+        this.name = name;
+        this.roles = roles;
+        this.code = code;
+        this.id = id;
     }
 
     @Override
     public String toString() {
-        return "{" + "'" +"id" + "'" + ":" + id +
+        return "{" + "'" +"userId" + "'" + ":" + userId +
                 "/"+ "'" + "username" +"'" +":" + "'"+ username + "'" +
                 "/" + "'" + "name" + "'" + ":"+ "'" + name + "'" +
                 "/" + "'" + "code" + "'" + ":"+ "'" + code + "'" +
+                "/" + "'" + "id" + "'" + ":"+ id +
                 "}" ;
     }
 }

@@ -151,4 +151,14 @@ public class OrganizerAPI {
         organizerService.deleteOrganizer(id);
         return new ResponseEntity<>("DELETE SUCCESS", HttpStatus.OK);
     }
+    @PostMapping("/tour/accept")
+    public ResponseEntity<?> acceptJoinTour(@RequestBody TeamJoinTourDTO teamJoinTourDTO){
+        organizerService.acceptJoinTour(teamJoinTourDTO);
+        return new ResponseEntity<>("ACCEPT SUCCESS", HttpStatus.OK);
+    }
+    @PostMapping("/tour/reject")
+    public ResponseEntity<?> rejectJoinTour(@RequestBody TeamJoinTourDTO teamJoinTourDTO){
+        organizerService.rejectJoinTour(teamJoinTourDTO);
+        return new ResponseEntity<>("REJECT SUCCESS", HttpStatus.OK);
+    }
 }

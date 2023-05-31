@@ -1,8 +1,6 @@
 package com.cg.service.esport.avartar;
 
-import com.cg.domain.esport.entities.Avartar;
-import com.cg.domain.esport.entities.Organizer;
-import com.cg.domain.esport.entities.Student;
+import com.cg.domain.esport.entities.*;
 import com.cg.repository.esport.AvartarRespository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -53,4 +51,16 @@ public class AvartarServiceImp implements IAvartarService{
     public Avartar findByStudent(Student student) {
         return avartarRespository.getByStudent(student);
     }
+
+    @Override
+    public Avartar findByTeam(TeamTournament teamTournament) {
+        return avartarRespository.findByTeamTournament(teamTournament);
+    }
+
+    @Override
+    public Avartar findByCategory(Category category) {
+        return avartarRespository.findByCategory(category);
+    }
+
+
 }

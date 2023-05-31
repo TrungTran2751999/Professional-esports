@@ -1,5 +1,6 @@
 package com.cg.domain.esport.dto;
 
+import com.cg.domain.esport.entities.Student;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,6 +19,14 @@ public class StudentResSecurity {
     private String phoneNumber;
     private BigDecimal balance;
     private AvartarDTO avartarDTO;
+    public Student toStudent(){
+        return new Student()
+                .setId(id)
+                .setNickName(nickName)
+                .setEmail(email)
+                .setPhoneNumber(phoneNumber)
+                .setBalance(balance);
+    }
 
     @Override
     public String toString() {

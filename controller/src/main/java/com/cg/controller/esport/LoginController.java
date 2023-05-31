@@ -85,7 +85,8 @@ public class LoginController {
                     currentUser.getUsername(),
                     studentDTO.getNickName(),
                     userDetails.getAuthorities(),
-                    currentUser.getCodeSecurity()
+                    currentUser.getCodeSecurity(),
+                    studentDTO.getId()
                     );
             Cookie cookie = new Cookie("JWT", jwt);
             Cookie infoUser = new Cookie("user", jwtResponse.toString());

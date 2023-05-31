@@ -4,15 +4,13 @@ import com.cg.domain.esport.dto.*;
 import com.cg.domain.esport.entities.*;
 import com.cg.exception.DataInputException;
 import com.cg.exception.UnauthorizedException;
-import com.cg.repository.esport.OrganizerFilterRepository;
-import com.cg.repository.esport.OrganizerRepository;
-import com.cg.repository.esport.OtpRepository;
-import com.cg.repository.esport.RoleRepository;
+import com.cg.repository.esport.*;
 import com.cg.service.email.EmailSender;
 import com.cg.service.email.SendEmailThread;
 import com.cg.service.esport.avartar.IAvartarService;
 import com.cg.service.esport.jwt.JwtService;
 import com.cg.service.esport.securitycode.ISecurityCodeService;
+import com.cg.service.esport.teamJoinTour.ITeamJoinTourService;
 import com.cg.service.esport.user.IUserService;
 import com.cg.utils.AppUtils;
 import com.cg.utils.driver.GoogleDriveConfig;
@@ -58,6 +56,8 @@ public class OrganzierServiceImp implements IOrganizerService{
     private SendEmailThread sendEmailThread;
     @Autowired
     private OtpRepository otpRepository;
+    @Autowired
+    private ITeamJoinTourService teamJoinTourService;
 
     @Override
     public List<Organizer> findAll() {
@@ -139,14 +139,16 @@ public class OrganzierServiceImp implements IOrganizerService{
     @Override
     @Transactional
     public OrganizerResSecurity updateOrganizerNoAvarTar(OrganizerUpdateDTO organizerDTO) {
-        List<Organizer> organizerCheckEmail = organizerRepository.findByEmail(organizerDTO.getEmail());
-        if(organizerCheckEmail.size() > 1){
-            throw new DataInputException("Email đã tồn tại");
-        }
         User user = userService.findByCodeSecurity(organizerDTO.getCode());
         try{
             if(Objects.equals(user.getId(), organizerDTO.getUserId()) && user.getId()!=null && organizerDTO.getUserId()!=null){
                 Organizer organizer = organizerRepository.getByUser(user);
+
+                List<Organizer> organizerCheckEmail = organizerRepository.findByEmail(organizerDTO.getEmail());
+                if(organizerCheckEmail.size() > 0 && !Objects.equals(organizer.getEmail(), organizerCheckEmail.get(0).getEmail())){
+                    throw new DataInputException("Email đã tồn tại");
+                }
+
                 organizer = organizerDTO.toOrganizer().setUser(user).setId(organizer.getId());
                 organizer = organizerRepository.save(organizer);
                 Avartar avartar = avartarService.findByOrganizer(organizer);
@@ -263,5 +265,14 @@ public class OrganzierServiceImp implements IOrganizerService{
         }
     }
 
+    @Override
+    public void acceptJoinTour(TeamJoinTourDTO teamJoinTourDTO) {
+        teamJoinTourService.acceptJoinTour(teamJoinTourDTO);
+    }
+
+    @Override
+    public void rejectJoinTour(TeamJoinTourDTO teamJoinTourDTO) {
+        teamJoinTourService.rejectJoinTour(teamJoinTourDTO);
+    }
 
 }

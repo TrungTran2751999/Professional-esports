@@ -38,6 +38,6 @@ public class Mentor extends BaseEntity {
                 .setPassword(password)
                 .setEmail(email)
                 .setUsername(name)
-                .setCategoryDTO(category.toCategoryDTO());
+                .setCategoryResponseDTO(category.toCategoryDTO());
     }
 }

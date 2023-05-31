@@ -1,7 +1,5 @@
 package com.cg.domain.esport.dto;
 
-import com.cg.domain.esport.entities.Category;
-import com.cg.domain.esport.entities.Mentor;
 import com.cg.domain.esport.entities.Role;
 import com.cg.domain.esport.entities.User;
 import lombok.*;
@@ -29,7 +27,7 @@ public class MentorDTO {
     @Email(message = "Email không đúng định dạng")
     private String email;
 
-    private CategoryDTO categoryDTO;
+    private CategoryResponseDTO categoryResponseDTO;
 
     private Long categoryId;
 
@@ -40,12 +38,12 @@ public class MentorDTO {
                 .setPassword(password)
                 .setRole(role);
     }
-    public Mentor toMentor(){
-        return new Mentor()
-                    .setId(id)
-                    .setPassword(password)
-                    .setEmail(email)
-                    .setName(username)
-                    .setCategory(categoryDTO.toCategory());
-    }
+//    public Mentor toMentor(){
+//        return new Mentor()
+//                    .setId(id)
+//                    .setPassword(password)
+//                    .setEmail(email)
+//                    .setName(username)
+//                    .setCategory(categoryResponseDTO.toCategory());
+//    }
 }

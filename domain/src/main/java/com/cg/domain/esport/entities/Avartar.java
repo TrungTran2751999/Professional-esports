@@ -35,7 +35,7 @@ public class Avartar extends BaseEntity {
     @Column(name = "file_url")
     private String fileUrl;
 
-    @ManyToOne(targetEntity = Student.class)
+    @ManyToOne(targetEntity = Student.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "student_id")
     private Student student;
 

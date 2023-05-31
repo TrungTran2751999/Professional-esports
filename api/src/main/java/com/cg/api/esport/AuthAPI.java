@@ -52,8 +52,8 @@ public class AuthAPI {
     @Autowired
     private IRoleService roleService;
 
-    @Autowired
-    private IMentorService mentorService;
+//    @Autowired
+//    private IMentorService mentorService;
 
     @Autowired
     private IOrganizerService organizerService;
@@ -141,23 +141,23 @@ public class AuthAPI {
 
         return new ResponseEntity<>(partnerResult.toPartnerDTO().setPassword(null), HttpStatus.CREATED);
     }
-    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
-    @PostMapping("/register/mentor")
-    public ResponseEntity<?> registerMentor(@Validated @RequestBody MentorDTO mentorDTO, BindingResult bindingResult) {
-        if (bindingResult.hasFieldErrors()) {
-            return appUtils.mapErrorToResponse(bindingResult);
-        }
-
-        User mentor = userService.getByUsername(mentorDTO.getUsername());
-
-        if (mentor != null) {
-            throw new EmailExistsException("Tên đăng nhập đã tồn tại trong hệ thống.");
-        }
-        mentorDTO.setPassword(passwordEncoder.encode(mentorDTO.getPassword()));
-        MentorDTO mentorResult = mentorService.createMentor(mentorDTO);
-
-        return new ResponseEntity<>(mentorResult.setPassword(null), HttpStatus.CREATED);
-    }
+//    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
+//    @PostMapping("/register/mentor")
+//    public ResponseEntity<?> registerMentor(@Validated @RequestBody MentorDTO mentorDTO, BindingResult bindingResult) {
+//        if (bindingResult.hasFieldErrors()) {
+//            return appUtils.mapErrorToResponse(bindingResult);
+//        }
+//
+//        User mentor = userService.getByUsername(mentorDTO.getUsername());
+//
+//        if (mentor != null) {
+//            throw new EmailExistsException("Tên đăng nhập đã tồn tại trong hệ thống.");
+//        }
+//        mentorDTO.setPassword(passwordEncoder.encode(mentorDTO.getPassword()));
+//        MentorDTO mentorResult = mentorService.createMentor(mentorDTO);
+//
+//        return new ResponseEntity<>(mentorResult.setPassword(null), HttpStatus.CREATED);
+//    }
     @PostMapping("/register/organizer")
     public ResponseEntity<?> registerOrganizer(@Validated @RequestBody OrganizerRequestDTO organizerDTO, BindingResult bindingResult) {
         if (bindingResult.hasFieldErrors()) {

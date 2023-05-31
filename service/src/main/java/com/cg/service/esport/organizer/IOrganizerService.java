@@ -25,4 +25,6 @@ public interface IOrganizerService extends IGeneralService<Organizer> {
     List<OrganizerResSecurity> findByDeleted(Boolean deleted);
     OrganizerResSecurity findByAdmin(Long id);
     void setDeleted(Boolean deleted, Long id);
+    void acceptJoinTour(TeamJoinTourDTO teamJoinTourDTO);
+    void rejectJoinTour(TeamJoinTourDTO teamJoinTourDTO);
 }

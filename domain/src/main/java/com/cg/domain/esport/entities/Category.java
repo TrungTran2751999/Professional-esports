@@ -1,6 +1,6 @@
 package com.cg.domain.esport.entities;
 
-import com.cg.domain.esport.dto.CategoryDTO;
+import com.cg.domain.esport.dto.CategoryResponseDTO;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -21,9 +21,13 @@ public class Category extends BaseEntity {
     @Column(length = 50)
     private String name;
 
-    public CategoryDTO toCategoryDTO(){
-        return new CategoryDTO()
+    @Column(length = 10)
+    private String brief;
+
+    public CategoryResponseDTO toCategoryDTO(){
+        return new CategoryResponseDTO()
                 .setId(id)
-                .setName(name);
+                .setName(name)
+                .setSignal(brief);
     }
 }

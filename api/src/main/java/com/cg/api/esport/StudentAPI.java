@@ -79,6 +79,10 @@ public class StudentAPI {
     public ResponseEntity<?> getById(@PathVariable("id") Long id){
         return new ResponseEntity<>(studentService.getStudentNoCode(id), HttpStatus.OK);
     }
+    @GetMapping("/team/{id}")
+    public ResponseEntity<?> getTeamJoined(@PathVariable("id") Long id, @RequestParam("deleted") Boolean deleted){
+        return new ResponseEntity<>(studentService.getListTeamJoined(id, deleted), HttpStatus.OK);
+    }
     @GetMapping("/security/{id}")
     @PreAuthorize("hasAnyAuthority('ROLE_STUDENT')")
     public ResponseEntity<?> getByIdSecure(@PathVariable("id") Long id, @RequestParam("code") String code){
@@ -119,5 +123,31 @@ public class StudentAPI {
     public ResponseEntity<?> setDeleted(@RequestParam("deleted") Boolean deleted, @PathVariable("id") Long id){
         studentService.setDeleted(deleted, id);
         return new ResponseEntity<>("UPDATE SUCCESS", HttpStatus.OK);
+    }
+    @PostMapping("/join")
+    public ResponseEntity<?> joinTeam(@Validated @RequestBody StudentJoinTeam studentJoinTeam, BindingResult bindingResult){
+        if (bindingResult.hasFieldErrors()) {
+            return appUtils.mapErrorToResponse(bindingResult);
+        }
+        studentService.joinTeam(studentJoinTeam);
+        return new ResponseEntity<>("JOIN TEAM SUCCESS", HttpStatus.OK);
+    }
+    @PostMapping("/leave")
+    public ResponseEntity<?> leaveTeam(@Validated @RequestBody StudentJoinTeam studentJoinTeam, BindingResult bindingResult){
+        if (bindingResult.hasFieldErrors()) {
+            return appUtils.mapErrorToResponse(bindingResult);
+        }
+        studentService.leaveTeam(studentJoinTeam);
+        return new ResponseEntity<>("LEAVE TEAM SUCCESS", HttpStatus.OK);
+    }
+    @GetMapping("/category")
+    public ResponseEntity<?> getTeamByCategory(@Validated @RequestBody StudentByCategory studentByCategory, BindingResult bindingResult){
+        if (bindingResult.hasFieldErrors()) {
+            return appUtils.mapErrorToResponse(bindingResult);
+        }
+        List<TeamStudentResDTO> result = studentService.getListTeamJoinedByCategory(studentByCategory.getUserId(),
+                                                   studentByCategory.getCode(),
+                                                   studentByCategory.getCategoryId());
+        return new ResponseEntity<>(result, HttpStatus.OK);
     }
 }

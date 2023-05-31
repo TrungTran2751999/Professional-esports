@@ -1,5 +1,7 @@
 package com.cg.domain.esport.entities;
 
+import com.cg.domain.esport.dto.AvartarDTO;
+import com.cg.domain.esport.dto.TeamResponseDTO;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -28,4 +30,14 @@ public class TeamTournament extends BaseEntity {
     @ManyToOne(targetEntity = Student.class)
     @JoinColumn(name = "leader_id")
     private Student leader;
+
+    public TeamResponseDTO toTeamResponseDTO(AvartarDTO avartarDTO){
+        return new TeamResponseDTO()
+                .setId(id)
+                .setName(name)
+                .setLeaderId(leader.getId())
+                .setCategoryId(category.getId())
+                .setCreateAt(getCreatedAt())
+                .setAvartarDTO(avartarDTO);
+    }
 }

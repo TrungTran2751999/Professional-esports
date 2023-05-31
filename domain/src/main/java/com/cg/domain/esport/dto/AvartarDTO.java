@@ -20,12 +20,4 @@ public class AvartarDTO {
     private String fileName;
     private String fileType;
     private String fileUrl;
-    public Avartar toAvartarOrganizer(Organizer organizer){
-        return new Avartar()
-                .setId(id)
-                .setCloudId(cloudId)
-                .setFileType(fileType)
-                .setFileUrl(fileUrl)
-                .setOrganizer(organizer);
-    }
 }
