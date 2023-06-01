@@ -1,4 +1,4 @@
-package com.cg.domain.esport.dto.teamtournament;
+package com.cg.domain.esport.dto.coupleInfor;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -7,13 +7,15 @@ import lombok.Setter;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
-import java.util.List;
-@AllArgsConstructor
-@NoArgsConstructor
 @Setter
 @Getter
+@NoArgsConstructor
+@AllArgsConstructor
 @Component
 public class CoupleInfor {
-    private List<TeamInfo> couple;
-    private Date startAt;
+    private Long teamAId;
+    private Integer scoreA;
+    private Long teamBId;
+    private Integer scoreB;
+    private Date createAt;
 }

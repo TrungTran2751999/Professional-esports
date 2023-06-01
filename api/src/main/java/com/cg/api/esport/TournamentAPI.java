@@ -1,6 +1,8 @@
 package com.cg.api.esport;
 
 import com.cg.domain.esport.dto.*;
+import com.cg.repository.esport.TourTableRepository;
+import com.cg.service.esport.tourTable.ITourTableService;
 import com.cg.service.esport.tournament.ITournamentService;
 import com.cg.utils.AppUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +26,8 @@ public class TournamentAPI {
     private ITournamentService tournamentService;
     @Autowired
     private AppUtils appUtils;
+    @Autowired
+    private ITourTableService tourTableService;
 
     @PostMapping("/filter")
     public ResponseEntity<?> filter(@Validated @RequestBody TournamentFilter tournamentFilter, BindingResult bindingResult,
@@ -65,5 +69,13 @@ public class TournamentAPI {
     public ResponseEntity<?> delete(@PathVariable("id") Long id){
         tournamentService.deleteTour(id);
         return new ResponseEntity<>("DELETE SUCCESS", HttpStatus.OK);
+    }
+    @PostMapping("/table")
+    @PreAuthorize("hasAnyAuthority('ROLE_ORGANIZER')")
+    public ResponseEntity<?> createOrUpdateTable(@RequestBody TourTableDTO tourTableDTO, BindingResult bindingResult){
+        if(bindingResult.hasErrors()){
+            return appUtils.mapErrorToResponse(bindingResult);
+        }
+        return new ResponseEntity<>(tourTableService.createOrUpdate(tourTableDTO), HttpStatus.OK);
     }
 }

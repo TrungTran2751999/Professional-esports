@@ -1,6 +1,6 @@
 package com.cg.domain.esport.entities;
 
-import com.cg.domain.esport.dto.teamtournament.CoupleTournament;
+import com.cg.domain.esport.dto.coupleInfor.Round;
 import com.vladmihalcea.hibernate.type.json.JsonType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -10,6 +10,7 @@ import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 
 import javax.persistence.*;
+import java.util.List;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -25,21 +26,21 @@ public class TournamentTable {
 
     @Type(type = "couple")
     @Column(name="eliminate", columnDefinition = "JSON")
-    private CoupleTournament eliminateRound;
+    private List<Round> eliminateRound;
 
     @Type(type = "couple")
     @Column(name="quarter", columnDefinition = "JSON")
-    private CoupleTournament quarterRound;
+    private Round quarterRound;
 
     @Type(type = "couple")
     @Column(name="semi", columnDefinition = "JSON")
-    private CoupleTournament semiRound;
+    private Round semiRound;
 
     @Type(type = "couple")
     @Column(name="final", columnDefinition = "JSON")
-    private CoupleTournament finalRound;
+    private Round finalRound;
 
-    @ManyToOne(targetEntity = Tournament.class)
+    @OneToOne(targetEntity = Tournament.class)
     @JoinColumn(name="tounament_id")
     private Tournament tournament;
 }

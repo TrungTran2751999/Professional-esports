@@ -5,6 +5,7 @@ import com.cg.domain.esport.entities.*;
 import com.cg.exception.DataInputException;
 import com.cg.repository.esport.*;
 import com.cg.service.esport.avartar.IAvartarService;
+import com.cg.service.esport.tourTable.ITourTableService;
 import com.cg.service.esport.user.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -32,6 +33,10 @@ public class TournamentServiceImp implements ITournamentService{
     private TeamLimitRepository teamLimitRepository;
     @Autowired
     private IAvartarService avartarService;
+    @Autowired
+    private ITourTableService tourTableService;
+    @Autowired
+    private TourTableRepository tourTableRepository;
 
     @Override
     public Page<TournamentReponseDTO> filter(TournamentFilter filter, Pageable pageable) {
@@ -75,6 +80,13 @@ public class TournamentServiceImp implements ITournamentService{
 
         tournamentRespository.save(tournamentOpt.get()
                                     .setDeleted(deleted));
+
+        TournamentTable tournamentTable = tourTableRepository.findByTournament(tournamentOpt.get());
+        Tournament tournament = tournamentOpt.get();
+        if(tournamentTable == null && !deleted){
+            Integer limit = tournament.getJoinLimit();
+            tourTableRepository.save(tourTableService.initTourTable(limit));
+        }
     }
 
     @Override

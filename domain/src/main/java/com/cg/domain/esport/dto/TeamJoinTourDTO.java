@@ -5,13 +5,20 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+
 @Setter
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
 public class TeamJoinTourDTO {
+    @NotNull
     private Long userId;
+    @NotBlank
     private String code;
+    @NotNull
     private Long tourId;
+    @NotNull
     private Long teamId;
 }

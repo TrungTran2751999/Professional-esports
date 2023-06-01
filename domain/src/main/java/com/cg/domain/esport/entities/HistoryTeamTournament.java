@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
-import com.cg.domain.esport.dto.teamtournament.CoupleTournament;
 
 import javax.persistence.*;
 
