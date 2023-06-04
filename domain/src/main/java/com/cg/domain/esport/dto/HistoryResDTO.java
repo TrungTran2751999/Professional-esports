@@ -1,22 +1,21 @@
-package com.cg.domain.esport.dto.coupleInfor;
+package com.cg.domain.esport.dto;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.stereotype.Component;
 
 import java.util.Date;
 @Setter
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class CoupleInfor {
-    private Long teamAId;
+public class HistoryResDTO {
+    private Long id;
+    private TeamResponseDTO teamA;
     private Integer scoreA;
-    private Long teamBId;
+    private TeamResponseDTO teamB;
     private Integer scoreB;
-    @JsonFormat(pattern = "dd-MM-yyyy")
+    private Long tourId;
     private Date createAt;
 }

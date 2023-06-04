@@ -12,7 +12,6 @@ import java.util.List;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-@Component
 public class RoundDTO {
     private String name;
     private List<CoupleInforRes> listCouple = new ArrayList<>();

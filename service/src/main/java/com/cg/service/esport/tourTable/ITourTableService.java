@@ -12,7 +12,8 @@ import javax.persistence.Column;
 import java.util.List;
 
 public interface ITourTableService {
+    TourTableResDTO findById(Long tourId);
     TourTableResDTO createOrUpdate(TourTableDTO tourTableDTO);
     List<CoupleInforRes> checkInforRound(Round round, Tournament tournament);
-    TournamentTable initTourTable(Integer limit);
+    TournamentTable initTourTable(Integer limit, Tournament tournament);
 }

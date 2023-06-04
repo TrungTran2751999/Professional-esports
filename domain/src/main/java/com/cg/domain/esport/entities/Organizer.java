@@ -30,7 +30,7 @@ public class Organizer extends BaseEntity {
     @Column(name="phone_number",nullable = false)
     private String phoneNumber;
 
-    @OneToOne(targetEntity = User.class)
+    @OneToOne(targetEntity = User.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id",nullable = false)
     private User user;
 

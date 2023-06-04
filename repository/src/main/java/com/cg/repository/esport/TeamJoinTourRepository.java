@@ -10,6 +10,8 @@ import java.util.List;
 
 public interface TeamJoinTourRepository extends JpaRepository<TeamJoinTour,Long> {
     List<TeamJoinTour> findByTournamentAndTeam(Tournament tournament, TeamTournament teamTournament);
+    List<TeamJoinTour> findByTeamAndState(TeamTournament teamTournament, EnumStatus enumStatus);
     List<TeamJoinTour> findByTournament(Tournament tournament);
     List<TeamJoinTour> findByTournamentAndState(Tournament tournament, EnumStatus state);
+    TeamJoinTour findByTournamentAndTeamAndState(Tournament tournament, TeamTournament teamTournament, EnumStatus enumStatus);
 }

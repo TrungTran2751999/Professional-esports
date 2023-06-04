@@ -139,7 +139,7 @@ public class OrganizerAPI {
         }
         return null;
     }
-    @PostMapping("/admin")
+    @PostMapping("/admin/deleted")
     @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
     public ResponseEntity<?> setDeleted(@RequestParam("deleted") Boolean deleted, @RequestParam("id") Long id){
         organizerService.setDeleted(deleted, id);

@@ -13,13 +13,7 @@ import java.util.List;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-@Component
 public class Round {
     private String name;
     private List<CoupleInfor> listCouple = new ArrayList<>();
-    public RoundDTO toRoundDTO(List<CoupleInforRes> listCouleInforRes){
-       return new RoundDTO()
-               .setName(name)
-               .setListCouple(listCouleInforRes);
-    }
 }

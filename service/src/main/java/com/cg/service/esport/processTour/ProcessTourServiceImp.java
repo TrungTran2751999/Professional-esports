@@ -4,10 +4,7 @@ import com.cg.domain.esport.dto.AvartarDTO;
 import com.cg.domain.esport.dto.OrganizerResponseDTO;
 import com.cg.domain.esport.dto.ProcessResponseDTO;
 import com.cg.domain.esport.dto.ProcessTourDTO;
-import com.cg.domain.esport.entities.Avartar;
-import com.cg.domain.esport.entities.Organizer;
-import com.cg.domain.esport.entities.Tournament;
-import com.cg.domain.esport.entities.User;
+import com.cg.domain.esport.entities.*;
 import com.cg.exception.DataInputException;
 import com.cg.repository.esport.OrganizerRepository;
 import com.cg.repository.esport.ProcessTourRepository;
@@ -21,6 +18,7 @@ import org.springframework.stereotype.Service;
 import java.util.Date;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class ProcessTourServiceImp implements IProcessTourService {
@@ -44,16 +42,17 @@ public class ProcessTourServiceImp implements IProcessTourService {
         if (tournament.getDeleted()) throw new DataInputException("tourEndOrBaned");
 
         Date dateTour = tournamentOpt.get().getCreatedAt();
-        if (dateTour.compareTo(processTourDTO.getRegister()) < 0)
+
+        if (countDate(processTourDTO.getRegister(),dateTour) <= 0)
             throw new DataInputException("RegisterGreaterCreate");
 
-        if (processTourDTO.getRegister().compareTo(processTourDTO.getConfirm()) < 0)
+        if (countDate(processTourDTO.getConfirm(),processTourDTO.getRegister()) <= 0)
             throw new DataInputException("ConfirmGreaterRegister");
 
-        if (processTourDTO.getStart().compareTo(processTourDTO.getConfirm()) < 0)
+        if (countDate(processTourDTO.getStart(),processTourDTO.getConfirm()) <= 0)
             throw new DataInputException("StartGreaterConfirm");
 
-        if (processTourDTO.getEnd().compareTo(processTourDTO.getStart()) < 0)
+        if (countDate(processTourDTO.getEnd(),processTourDTO.getStart()) <= 0)
             throw new DataInputException("EndGreaterStart");
 
         User user = userService.findByCodeSecurity(processTourDTO.getCode());
@@ -69,6 +68,11 @@ public class ProcessTourServiceImp implements IProcessTourService {
         AvartarDTO avartarCate = avartarService.findByCategory(tournament.getCategory()).toAvartarDTO();
         return processTourRepository.save(processTourDTO.toProcessTour(tournament))
                 .toProcessResponseDTO(avartarOrganizer, avartarCate);
+    }
+    @Override
+    public long countDate(Date nextDay, Date prevDay){
+        long diff = nextDay.getTime() - prevDay.getTime();
+        return TimeUnit.DAYS.convert(diff,TimeUnit.MILLISECONDS);
     }
 
 }

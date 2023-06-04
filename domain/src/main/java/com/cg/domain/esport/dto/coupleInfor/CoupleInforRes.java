@@ -12,7 +12,6 @@ import java.util.Date;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-@Component
 public class CoupleInforRes {
     private TeamResponseDTO teamA;
     private Integer scoreA;

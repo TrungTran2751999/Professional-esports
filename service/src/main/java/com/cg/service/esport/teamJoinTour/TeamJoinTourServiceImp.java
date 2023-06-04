@@ -63,6 +63,7 @@ public class TeamJoinTourServiceImp implements ITeamJoinTourService{
 
         TeamTournament team = teamRepository.findByIdAndLeader(teamJoinTourDTO.getTeamId(), student);
         if(team == null) throw new DataInputException("notFoundLeader");
+        if(team.getDeleted()) throw new DataInputException("teamIsBanned");
 
         Optional<Tournament> tournamentOpt = tournamentRespo.findById(teamJoinTourDTO.getTourId());
         if(!tournamentOpt.isPresent()) throw new DataInputException("notFoundTournament");
@@ -77,8 +78,11 @@ public class TeamJoinTourServiceImp implements ITeamJoinTourService{
         if(new Date().compareTo(processTournament.getRegisterFinish()) > 0)
             throw new DataInputException("RegisterOver");
 
-        List<TeamJoinTour> checkTeamJoinTour = teamJoinTourRepository.findByTournamentAndTeam(tournament,team);
-        if(!checkTeamJoinTour.isEmpty()) throw new DataInputException("teamRegistered");
+        List<TeamJoinTour> checkTeamJoinTourRegis = teamJoinTourRepository.findByTeamAndState(team,EnumStatus.REGISTER);
+        if(!checkTeamJoinTourRegis.isEmpty()) throw new DataInputException("teamRegistered");
+
+        List<TeamJoinTour> checkTeamJoinTourConfirm = teamJoinTourRepository.findByTeamAndState(team,EnumStatus.CONFIRM);
+        if(!checkTeamJoinTourConfirm.isEmpty()) throw new DataInputException("teamJoined");
 
         List<TeamJoinTour> checkLimit = teamJoinTourRepository.findByTournament(tournament);
         if(checkLimit.size()+1 > tournament.getJoinLimit()) throw new DataInputException("TeamInTourOver");
@@ -115,13 +119,16 @@ public class TeamJoinTourServiceImp implements ITeamJoinTourService{
         ProcessTournament processTournament = processTourRepo.findByTournament(tournament);
         if(processTournament==null) throw new DataInputException("notFoundProcess");
 
-        List<TeamJoinTour> checkTeamJoinTour = teamJoinTourRepository.findByTournamentAndTeam(tournament,team);
-        if(checkTeamJoinTour.isEmpty()) throw new DataInputException("teamNotRegistered");
+        List<TeamJoinTour> checkTeamJoinTourConfirm = teamJoinTourRepository.findByTeamAndState(team,EnumStatus.CONFIRM);
+        if(!checkTeamJoinTourConfirm.isEmpty()) throw new DataInputException("teamJoined");
+
+        List<TeamJoinTour> checkTeamJoinTourRegis = teamJoinTourRepository.findByTeamAndState(team,EnumStatus.REGISTER);
+        if(checkTeamJoinTourRegis.isEmpty()) throw new DataInputException("teamRegistered");
 
         if(new Date().compareTo(processTournament.getRegisterFinish()) > 0)
             throw new DataInputException("notLeaveWhenRegister");
 
-        teamJoinTourRepository.delete(checkTeamJoinTour.get(0));
+        teamJoinTourRepository.delete(checkTeamJoinTourRegis.get(0));
     }
 
     @Override
@@ -144,7 +151,7 @@ public class TeamJoinTourServiceImp implements ITeamJoinTourService{
         if(!Objects.equals(team.getId(), teamJoinTourDTO.getTeamId()))
             throw new DataInputException("notLeaderInTeam");
 
-        Tournament tournament = tournamentRespo.findByIdAndOrganizer(organizer, teamJoinTourDTO.getTourId());
+        Tournament tournament = tournamentRespo.findByIdAndOrganizer(teamJoinTourDTO.getTourId(),organizer);
         if(tournament==null) throw new DataInputException("notFoundOrganizer");
 
         List<TeamJoinTour> checkTeamJoinr = teamJoinTourRepository.findByTournamentAndTeam(tournament,team);
@@ -173,7 +180,7 @@ public class TeamJoinTourServiceImp implements ITeamJoinTourService{
         if(!Objects.equals(team.getId(), teamJoinTourDTO.getTeamId()))
             throw new DataInputException("notLeaderInTeam");
 
-        Tournament tournament = tournamentRespo.findByIdAndOrganizer(organizer, teamJoinTourDTO.getTourId());
+        Tournament tournament = tournamentRespo.findByIdAndOrganizer(teamJoinTourDTO.getTourId(),organizer);
         if(tournament==null) throw new DataInputException("notFoundOrganizer");
 
         List<TeamJoinTour> checkTeamJoinr = teamJoinTourRepository.findByTournamentAndTeam(tournament,team);

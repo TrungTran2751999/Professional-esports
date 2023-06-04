@@ -17,5 +17,4 @@ public class TourTableResDTO {
     private RoundDTO quater;
     private RoundDTO semi;
     private RoundDTO conclusion;
-
 }

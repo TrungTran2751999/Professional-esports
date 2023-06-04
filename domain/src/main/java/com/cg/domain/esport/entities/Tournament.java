@@ -51,8 +51,11 @@ public class Tournament {
     @Column(name = "create_at")
     private Date createdAt;
 
+    @Column(name = "begining", columnDefinition = "boolean default false")
+    private Boolean begining = false;
+
     @Column(name = "deleted", columnDefinition = "boolean default true")
-    private Boolean deleted;
+    private Boolean deleted = true;
 
     public TournamentReponseDTO toTournamentResponseDTO(AvartarDTO avartarDTO, AvartarDTO avartarCate){
         return new TournamentReponseDTO()

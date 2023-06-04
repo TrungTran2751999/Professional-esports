@@ -101,7 +101,7 @@ public class AuthAPI {
                     .httpOnly(false)
                     .secure(false)
                     .path("/")
-                    .maxAge(1000 * 60 * 60)
+                    .maxAge(1000*30*30)
                     .domain("localhost")
                     .build();
 

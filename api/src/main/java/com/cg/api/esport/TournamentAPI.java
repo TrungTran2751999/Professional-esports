@@ -1,7 +1,10 @@
 package com.cg.api.esport;
 
 import com.cg.domain.esport.dto.*;
+import com.cg.domain.esport.enums.EnumStatus;
 import com.cg.repository.esport.TourTableRepository;
+import com.cg.service.esport.processTour.IProcessTourService;
+import com.cg.service.esport.teamJoinTour.ITeamJoinTourService;
 import com.cg.service.esport.tourTable.ITourTableService;
 import com.cg.service.esport.tournament.ITournamentService;
 import com.cg.utils.AppUtils;
@@ -28,6 +31,10 @@ public class TournamentAPI {
     private AppUtils appUtils;
     @Autowired
     private ITourTableService tourTableService;
+    @Autowired
+    private IProcessTourService processTourService;
+    @Autowired
+    private ITeamJoinTourService teamJoinTourService;
 
     @PostMapping("/filter")
     public ResponseEntity<?> filter(@Validated @RequestBody TournamentFilter tournamentFilter, BindingResult bindingResult,
@@ -52,7 +59,7 @@ public class TournamentAPI {
     }
     @PostMapping
     @PreAuthorize("hasAnyAuthority('ROLE_ORGANIZER')")
-    public ResponseEntity<?> create(@RequestBody TournamentDTO tournamentDTO, BindingResult bindingResult){
+    public ResponseEntity<?> create(@Validated @RequestBody TournamentDTO tournamentDTO, BindingResult bindingResult){
         if(bindingResult.hasErrors()){
             return appUtils.mapErrorToResponse(bindingResult);
         }
@@ -72,10 +79,31 @@ public class TournamentAPI {
     }
     @PostMapping("/table")
     @PreAuthorize("hasAnyAuthority('ROLE_ORGANIZER')")
-    public ResponseEntity<?> createOrUpdateTable(@RequestBody TourTableDTO tourTableDTO, BindingResult bindingResult){
+    public ResponseEntity<?> createOrUpdateTable(@Validated @RequestBody TourTableDTO tourTableDTO, BindingResult bindingResult){
         if(bindingResult.hasErrors()){
             return appUtils.mapErrorToResponse(bindingResult);
         }
         return new ResponseEntity<>(tourTableService.createOrUpdate(tourTableDTO), HttpStatus.OK);
     }
+    @PostMapping("/process")
+    @PreAuthorize("hasAnyAuthority('ROLE_ORGANIZER')")
+    public ResponseEntity<?> createProcess(@Validated @RequestBody ProcessTourDTO processTourDTO, BindingResult bindingResult){
+        if(bindingResult.hasErrors()){
+            return appUtils.mapErrorToResponse(bindingResult);
+        }
+        return new ResponseEntity<>(processTourService.create(processTourDTO),HttpStatus.OK);
+    }
+    @GetMapping("/register/{id}")
+    public ResponseEntity<?> findRegister(@PathVariable("id") Long id){
+        return new ResponseEntity<>(teamJoinTourService.findTeamJoin(id, EnumStatus.REGISTER), HttpStatus.OK);
+    }
+    @GetMapping("/confirm/{id}")
+    public ResponseEntity<?> findConfirm(@PathVariable("id") Long id){
+        return new ResponseEntity<>(teamJoinTourService.findTeamJoin(id, EnumStatus.CONFIRM), HttpStatus.OK);
+    }
+    @GetMapping("/table/{id}")
+    public ResponseEntity<?> findById(@PathVariable("id") Long id){
+        return new ResponseEntity<>(tourTableService.findById(id), HttpStatus.OK);
+    }
+
 }

@@ -4,4 +4,7 @@ public enum EnumStatus {
     REGISTER,
     CONFIRM,
     REMOVE,
+
+    PASS,
+    WIN,
 }

@@ -28,11 +28,14 @@ public class TournamentDTO{
     private BigDecimal prize;
     @NotNull
     private Integer joinLimit;
+    @NotBlank
+    private String address;
 
     public Tournament toTournament(){
         return new Tournament()
                 .setPrize(prize)
                 .setName(name)
-                .setJoinLimit(joinLimit);
+                .setJoinLimit(joinLimit)
+                .setAddress(address);
     }
 }
