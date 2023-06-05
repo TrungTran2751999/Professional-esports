@@ -32,8 +32,8 @@ public class TeamJoinTour {
     private TeamTournament team;
 
     @Enumerated(value = EnumType.STRING)
-    @Column(name = "state", columnDefinition = "default REGISTER")
-    private EnumStatus state;
+    @Column(name = "state")
+    private EnumStatus state = EnumStatus.REGISTER;
 
     @CreatedBy
     @Column(name = "create_at")

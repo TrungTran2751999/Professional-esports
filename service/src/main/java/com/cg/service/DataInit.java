@@ -53,15 +53,17 @@ public class DataInit implements ApplicationRunner {
                     new TeamLimit(null, 32),
                     new TeamLimit(null, 64)
             };
+            roleRepository.saveAll(Arrays.asList(listRole));
             User user = (User) new User()
                     .setUsername("admin")
                     .setPassword(passwordEncoder.encode("12345"))
                     .setRole(roleRepository.getById(1L))
                     .setDeleted(false);
+            user = userRepository.save(user);
             SecurityCode securityCode = codeSecurityRepository.save(new SecurityCode().setUser(user));
+            user.setCodeSecurity(securityCode.getId());
+            userRepository.save(user);
             teamLimitRepository.saveAll(Arrays.asList(listTeamLimit));
-            roleRepository.saveAll(Arrays.asList(listRole));
-            userRepository.save(user.setCodeSecurity(securityCode.getId()));
         }
     }
 }
